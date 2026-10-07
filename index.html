@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f2a5c">
+<title>ตรวจสอบสิทธิประโยชน์การตรวจสุขภาพพนักงาน ประจำปี 2569 | TQM Group</title>
+<meta name="description" content="ตรวจสอบสิทธิประโยชน์การตรวจสุขภาพพนักงาน TQM Group ประจำปี 2569 — สถานพยาบาล สถานที่ตรวจ วันเวลา และแผนที่จุดตรวจ">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="th_TH">
+<meta property="og:site_name" content="TQM Group">
+<meta property="og:title" content="ตรวจสอบสิทธิประโยชน์การตรวจสุขภาพพนักงาน ประจำปี 2569">
+<meta property="og:description" content="กรอกรหัสพนักงานเพื่อตรวจสอบสถานพยาบาล วันเวลา และจุดตรวจสุขภาพประจำปี 2569">
+<!-- เมื่อรู้โดเมนจริงแล้ว ค่อยใส่ภาพตัวอย่างสำหรับแชร์ลิงก์ (ต้องเป็น URL เต็ม): -->
+<!-- <meta property="og:image" content="https://โดเมนของท่าน/bg-page.jpg"> -->
+<link rel="icon" href="favicon-health.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@300;400;500;600;700&family=Noto+Serif+Thai:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue-accent:#485cc7; --blue-glow:#3b82f6; --soft-blue:#dbeafe;
+  --r-sm:12px; --r-md:16px; --r-lg:24px;
+  --paper:#ffffff; --ink:#0f172a; --mute:#64748b; --warn:#dc2626;
+  --serif:'Noto Serif Thai','Noto Serif',Georgia,serif;
+  --sans:'IBM Plex Sans Thai Looped',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html, body{height:100%;overflow-x:hidden}
+
+/* ใช้ bg-page.jpg (บีบจากต้นฉบับ 8.3 MB เหลือ 162 KB) พร้อม Overlay ฟรอสต์ขาว
+   ไม่ใส่ background-attachment:fixed ตรงนี้ เพราะ iOS Safari ไม่รองรับ (ภาพจะเพี้ยน) — เปิดใช้เฉพาะจอใหญ่ด้านล่าง */
+body{
+  background: 
+    linear-gradient(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.62)),
+    url('bg-page.jpg') center/cover no-repeat;
+  color:var(--ink);
+  font:400 15px/1.6 var(--sans);
+  -webkit-tap-highlight-color:transparent;
+  display:flex;
+  flex-direction:column;
+}
+
+main{
+  width:100%;
+  max-width:480px;
+  margin:0 auto;
+  padding:0 24px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+:focus-visible{outline:2px solid var(--blue-glow);outline-offset:3px}
+
+#hero{
+  height:100vh;            /* fallback สำหรับเบราว์เซอร์ที่ยังไม่รองรับ dvh */
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  padding:72px 0 24px;      /* เผื่อที่ให้ badge มุมบนขวา */
+  box-sizing:border-box;
+}
+.searched #hero{
+  height:auto;
+  min-height:0;
+  padding:60px 0 16px;
+}
+body.searched{
+  overflow-y:auto;
+}
+
+h1{
+  font:700 clamp(22px,6.5vw,30px)/1.35 var(--serif);
+  color:#0f2a5c;
+  letter-spacing:-0.01em;
+}
+.lede{
+  margin:10px auto 0;
+  color:#475569;
+  max-width:28em;
+  font-size:14px;
+  font-weight:400;
+}
+.searched .lede{display:none}
+.searched h1{font-size:18px}
+
+.ecg{
+  display:block;width:100%;max-width:260px;height:30px;margin:10px auto 0;
+  fill:none;stroke:#485cc7;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  stroke-dasharray:1;stroke-dashoffset:1;
+}
+/* เริ่มวาดหลัง intro เปิดออก จะได้ไม่ซ้อนจังหวะกัน */
+body.ready .ecg{animation:draw 1.6s .1s cubic-bezier(.4,0,.2,1) forwards}
+.searched .ecg{display:none}
+
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* Glassmorphism Card ค้นหา */
+form{
+  margin-top:24px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--r-md);
+  padding: 22px;
+  box-shadow: 0 18px 40px rgba(15, 42, 92, 0.12);
+
+}
+.searched form{margin-top:0}
+
+label{
+  display:block;
+  font-size:13px;
+  color:#334155;
+  margin-bottom:8px;
+  font-weight:500;
+}
+
+input{
+  width:100%;
+  background:#ffffff;
+  border:1.5px solid #cbd5e1;
+  border-radius:var(--r-sm);
+  font:600 22px/1.3 var(--serif);
+  letter-spacing:.08em;
+  text-align:center;
+  color:#0f172a;
+  padding:12px 18px;
+  outline:none;
+  font-variant-numeric:tabular-nums;
+  transition:all .25s ease;
+}
+input:focus{
+  border-color:var(--blue-glow);
+  box-shadow:0 0 0 4px rgba(72, 92, 199, 0.18);
+}
+
+button.go{
+  position:relative;
+  width:100%;
+  height:50px;
+  margin-top:12px;
+  border:0;
+  border-radius:var(--r-sm);
+  background:linear-gradient(135deg, #485cc7 0%, #1d4ed8 100%);
+  color:#fff;
+  box-shadow:0 8px 18px rgba(72, 92, 199, 0.32);
+  font:600 16px var(--sans);
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+button.go:hover:not(:disabled){
+  background:linear-gradient(135deg, #5a6fd8 0%, #3d51c4 100%);
+  box-shadow:0 10px 22px rgba(72, 92, 199, 0.42);
+}
+button.go:active:not(:disabled){transform:scale(0.98)}
+button.go:disabled{opacity:.7;cursor:default}
+
+/* ปุ่มย้อนกลับไปค้นหารหัสอื่น (แสดงหลังค้นหาแล้ว) */
+.again{
+  display:none; width:max-content; margin:10px auto 0; padding:8px 14px; border:0; border-radius:999px;
+  background:none; cursor:pointer; color:var(--mute); font:500 13px var(--sans);
+  align-items:center; gap:6px; transition:color .2s ease, background .2s ease;
+}
+.searched .again{display:flex}
+.again:hover{color:var(--ink); background:rgba(120,150,190,.12)}
+.again svg{width:15px; height:15px}
+
+/* แจ้งเตือนเมื่อปิด JavaScript (หน้านี้ค้นหาด้วย JS เท่านั้น) */
+.nojs{
+  margin:14px auto 0; max-width:27em; padding:12px 15px; border-radius:var(--r-sm);
+  background:#fff8e8; border:1px solid #f0dfba; color:#7a5a17;
+  font-size:13px; line-height:1.6; text-align:left;
+}
+
+button.go.is-loading .btn-text{display:none}
+.btn-ecg{display:none;width:120px;height:28px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:120;stroke-dashoffset:120}
+button.go.is-loading .btn-ecg{display:block;animation:pulse-wave 1.2s infinite linear}
+@keyframes pulse-wave{
+  0%{stroke-dashoffset:120}
+  100%{stroke-dashoffset:-120}
+}
+
+#toast{
+  position:fixed;
+  bottom:54px;                 /* เผื่อที่ให้ credit ล่างจอ */
+  left:50%;
+  transform:translateX(-50%) translateY(100px);
+  /* แดงทึบ อ่านชัดบนพื้นสว่าง */
+  background: rgba(197, 30, 30, 0.93);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  /* เพิ่มเงาแสงแดงฟุ้งๆ */
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  z-index: 999;
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  text-align: center;
+  width: max-content;
+  max-width: min(90vw, 22rem);
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+#toast.show{
+  transform:translateX(-50%) translateY(0);
+  opacity:1;
+}
+
+.res{animation:rise .5s cubic-bezier(.2,.7,.2,1) both;padding-bottom:48px}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+
+.track{
+  display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  margin:0 -24px -28px;padding:4px 24px 44px;scroll-padding:0 24px;
+}
+.track::-webkit-scrollbar{display:none}
+.t{flex:0 0 100%;scroll-snap-align:start;text-align:left;filter:drop-shadow(0 20px 35px rgba(15, 42, 92, 0.18))}
+.multi .t{flex-basis:calc(100% - 28px)}
+
+/* Header ตั๋ว */
+.t-head{
+  position:relative;
+  overflow:hidden;
+  padding:24px 22px 30px;
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  color:#ffffff;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%);
+}
+
+.t-head::after{
+  content:'';
+  position:absolute;
+  right:0;
+  bottom:6px;
+  width:62%;
+  height:44px;
+  opacity:.2;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40'%3E%3Cpath d='M0 24h120l8-16 10 32 9-24 6 8h47' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right bottom/contain;
+}
+.t-head>*{position:relative;z-index:1}
+.k{font-size:12px;color:rgba(255, 255, 255, 0.75);font-weight:300}
+.hosp{font:600 22px/1.4 var(--serif);margin-bottom:12px;color:#ffffff}
+.exam{font-size:14px;font-weight:500;color:rgba(255, 255, 255, 0.9)}
+
+.t-head{-webkit-mask-image:radial-gradient(circle 11px at 0 100%,#0000 10.5px,#000 11px),radial-gradient(circle 11px at 100% 100%,#0000 10.5px,#000 11px);
+  mask-image:radial-gradient(circle 11px at 0 100%,#0000 10.5px,#000 11px),radial-gradient(circle 11px at 100% 100%,#0000 10.5px,#000 11px);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.t-body{-webkit-mask-image:radial-gradient(circle 11px at 0 0,#0000 10.5px,#000 11px),radial-gradient(circle 11px at 100% 0,#0000 10.5px,#000 11px);
+  mask-image:radial-gradient(circle 11px at 0 0,#0000 10.5px,#000 11px),radial-gradient(circle 11px at 100% 0,#0000 10.5px,#000 11px);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+
+/* Body ของตั๋ว */
+.t-body{
+  background:#ffffff;
+  color:var(--ink);
+  border-radius:0 0 var(--r-lg) var(--r-lg);
+  padding:24px 20px 20px;
+}
+.who{padding:0 4px;font:700 18px/1.4 var(--serif);color:#0f172a}
+.eid{padding:0 4px;font-size:13px;color:var(--mute);letter-spacing:.03em;font-variant-numeric:tabular-nums}
+dl{margin-top:16px;display:grid;gap:10px;background:#f8fafc;border-radius:var(--r-md);padding:14px;border:1px solid #e2e8f0}
+.r{display:grid;grid-template-columns:84px 1fr;gap:12px}
+dt{font-size:13px;color:var(--mute)}
+dd{font-size:13.5px;font-weight:500;line-height:1.5;color:#1e293b}
+dd small{display:block;font-size:12px;font-weight:400;color:var(--mute)}
+.stat{padding:0 4px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px}
+.stat>span{font-size:13px;color:var(--mute);font-weight:500}
+
+.stamp{
+  color:var(--blue-accent);border:2px solid currentColor;outline:1px solid currentColor;outline-offset:2px;
+  border-radius:10px;padding:4px 14px;font-weight:700;font-size:14px;text-align:center;
+  margin-right:3px;opacity:0;transform:scale(2.5) rotate(-12deg);
+  animation:stamp-down .38s cubic-bezier(.175,.885,.32,1.275) .35s forwards;
+}
+.stamp.date{font-size:13px;line-height:1.4;letter-spacing:0;max-width:14em}
+
+@keyframes stamp-down{
+  to{opacity:1;transform:scale(1) rotate(-3deg)}
+}
+
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+#pos{font-size:14px;color:#334155;font-weight:500;font-variant-numeric:tabular-nums}
+.nav{display:flex;gap:8px}
+.nb{width:40px;height:40px;border:1px solid #cbd5e1;border-radius:var(--r-sm);background:#fff;color:#3d51c4;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 10px rgba(15,42,92,0.12)}
+.nb svg{width:18px;height:18px}
+.nb:disabled{opacity:.3;cursor:default}
+
+/* ---------- badge มุมบนขวา (ทางลัดไปหน้าทุนการศึกษา) ---------- */
+.corner{
+  position:fixed; top:14px; right:14px; z-index:900;
+  display:inline-flex; align-items:center; gap:8px;
+  height:40px; padding:0 12px 0 6px;
+  border-radius:999px;
+  background:rgba(255,255,255,.84);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 1px 2px rgba(18,40,63,.05), 0 10px 24px rgba(18,40,63,.10);
+  -webkit-backdrop-filter:blur(12px) saturate(1.15); backdrop-filter:blur(12px) saturate(1.15);
+  color:#132a45; font:500 12.5px var(--sans); text-decoration:none;
+  transition:transform .22s cubic-bezier(.2,.7,.2,1), box-shadow .22s ease, background .22s ease;
+}
+.corner:hover{background:rgba(255,255,255,.96); transform:translateY(-1px); box-shadow:0 2px 4px rgba(18,40,63,.06), 0 14px 30px rgba(18,40,63,.16)}
+.corner:active{transform:translateY(0)}
+.corner-ic{
+  width:28px; height:28px; flex:0 0 auto; border-radius:50%; display:grid; place-items:center;
+  background:#17324f; color:#fff;
+}
+.corner-ic svg{width:15px; height:15px}
+.corner-tx{white-space:nowrap}
+.corner-arw{width:13px; height:13px; flex:0 0 auto; color:#9fb0c6; transition:transform .22s ease, color .22s ease}
+.corner:hover .corner-arw{transform:translateX(2px); color:#17324f}
+@media (max-width:400px){
+  .corner-arw{display:none}
+  .corner{padding-right:11px}
+}
+@media (max-width:340px){
+  .corner-tx{display:none}
+  .corner{padding:0 6px}
+}
+
+/* ---------- credit ล่างจอกลาง (ไม่เด่น แต่ตั้งใจวาง) ---------- */
+.credit{
+  position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+  bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index:800; pointer-events:none;
+  display:inline-flex; align-items:center; gap:9px;
+  font:400 10px var(--sans); letter-spacing:.2em; text-transform:uppercase; color:#93a2b6;
+  opacity:0; animation:creditIn .9s ease 2.9s both;   /* เผื่อกรณีสคริปต์ไม่ทำงาน */
+}
+body.ready .credit{animation:creditIn .9s ease .3s both}   /* โผล่หลัง intro จบ */
+.credit::before, .credit::after{content:''; width:16px; height:1px; background:currentColor; opacity:.5}
+.credit b{font:500 12px var(--serif); letter-spacing:.06em; text-transform:none; color:#6b7d94}
+@keyframes creditIn{to{opacity:.8}}
+@media (prefers-reduced-motion: reduce){
+  .credit, body.ready .credit{animation:none; opacity:.8}
+}
+
+/* ---------- ชื่ออังกฤษ + การ์ดแผนที่ในตั๋ว ---------- */
+.en{padding:0 4px;margin-top:3px;font-size:12.5px;letter-spacing:.02em;color:var(--mute)}
+
+.map{margin-top:16px;border:1px solid #e2e8f0;border-radius:var(--r-md);overflow:hidden;background:#fff}
+.map-cover{
+  display:block;width:100%;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;
+  padding:18px 16px 16px;background:linear-gradient(135deg,#f1f6ff 0%,#e3ecff 100%);
+}
+.map-cover.static{cursor:default;background:#f8fafc}
+.map-pin{width:26px;height:26px;color:var(--blue-accent);margin-bottom:8px}
+.map-cover.static .map-pin{color:#94a3b8}
+.map-pt{display:block;font:600 13.5px/1.4 var(--sans);color:#1e293b}
+.map-addr{display:block;margin-top:3px;font-size:12.5px;line-height:1.55;color:var(--mute)}
+.map-note{
+  display:inline-block; margin-left:6px; padding:2px 7px; border-radius:999px; vertical-align:1.5px;
+  font:500 10.5px var(--sans); color:#7b8a9e;
+  background:rgba(120,150,190,.14); border:1px solid rgba(120,150,190,.22);
+}
+.map-cta{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font:600 12.5px var(--sans);color:var(--blue-accent)}
+.map-cover.static .map-cta{color:var(--mute);font-weight:500}
+.map-cta svg{width:15px;height:15px}
+.map-frame{display:block;width:100%;height:210px;border:0;background:#eef2f7}
+
+.map-actions{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-top:1px solid #e2e8f0;background:#fff}
+.map-actions a{
+  flex:1 1 auto;min-width:104px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:40px;padding:0 12px;border-radius:var(--r-sm);text-decoration:none;font:600 13.5px var(--sans);
+}
+.map-actions svg{width:16px;height:16px;flex:0 0 auto}
+.btn-nav{background:linear-gradient(135deg,#485cc7 0%,#1d4ed8 100%);color:#fff;box-shadow:0 6px 14px rgba(72,92,199,.28)}
+.btn-nav:active{transform:scale(.98)}
+.btn-alt{background:#fff;color:#3d51c4;border:1px solid #cbd5e1;box-shadow:0 2px 6px rgba(15,42,92,.06)}
+
+/* พื้นหลังแบบตรึง ใช้เฉพาะอุปกรณ์ที่มีเมาส์จริง (iOS/touch ไม่รองรับ background-attachment:fixed) */
+/* จอเล็ก: ใช้ภาพแนวตั้งที่จัดองค์ประกอบใหม่ (เครื่องมือแพทย์อยู่ด้านบน เหลือพื้นที่ว่างด้านล่าง) */
+@media (max-width:600px){
+  body{background-image:linear-gradient(rgba(255,255,255,.62),rgba(255,255,255,.62)),url('bg-mobile.jpg')}
+}
+@media (hover:hover) and (pointer:fine){
+  body{background-attachment:fixed, fixed}
+}
+
+/* ---------- Intro (แบบ ③ แกนชีพจร โทนสว่าง — เล่นเฉพาะเมื่อควร ดูสคริปต์สั้นใน <head>) ---------- */
+#intro{display:none}
+html.intro-on, html.intro-on body{overflow:hidden}
+html.intro-on #intro{
+  display:block;position:fixed;inset:0;z-index:2000;
+  background:
+    radial-gradient(74% 54% at 50% 6%, rgba(255,255,255,.98) 0%, rgba(255,255,255,0) 62%),
+    radial-gradient(92% 66% at 50% 110%, rgba(255,203,219,.55) 0%, rgba(255,203,219,0) 64%),
+    radial-gradient(125% 92% at 50% 42%, #f6faff 0%, #e6f0ff 40%, #d4e5ff 70%, #c4dbff 100%);
+  transition:opacity .45s ease, visibility .45s ease;
+}
+html.intro-on #intro.done{opacity:0;visibility:hidden;pointer-events:none}
+#intro .i-scene{position:absolute;inset:0;display:grid;place-items:center;padding:0 24px}
+#intro .i-glow{
+  position:absolute;width:78vmin;height:78vmin;border-radius:50%;opacity:.55;
+  background:radial-gradient(circle, rgba(96,165,250,.30) 0%, rgba(96,165,250,.10) 44%, rgba(96,165,250,0) 72%);
+  filter:blur(10px);animation:i-glow .6s ease .04s both;
+}
+#intro .i-rings{position:absolute;display:grid;place-items:center;pointer-events:none}
+#intro .i-rings i{
+  position:absolute;width:20vmin;height:20vmin;border-radius:50%;opacity:0;
+  border:1.5px solid rgba(72,92,199,.40);box-shadow:0 0 30px rgba(96,165,250,.28) inset;
+}
+#intro .i-rings i:nth-child(1){animation:i-ring 1.5s ease-out 0s both}
+#intro .i-rings i:nth-child(2){animation:i-ring 1.5s ease-out .25s both}
+#intro .i-rings i:nth-child(3){animation:i-ring 1.5s ease-out .5s both}
+#intro .i-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 170px 46px rgba(255,255,255,.62)}
+#intro .i-content{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;text-align:center}
+#intro .i-logo{width:min(58vw,212px);height:auto;margin-bottom:16px;animation:i-pop .6s cubic-bezier(.2,1.3,.3,1) .25s both}
+#intro .i-ecg{display:block;width:min(76vw,520px);height:66px;overflow:visible;margin:10px 0 18px}
+#intro .i-ecg path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+#intro .i-ghost{stroke:rgba(72,92,199,.20);stroke-width:1.5;opacity:.26;animation:i-fadein .5s ease .5s both}
+#intro .i-draw{
+  stroke:#485cc7;stroke-width:2.6;stroke-dasharray:1;stroke-dashoffset:0;
+  filter:drop-shadow(0 1px 6px rgba(72,92,199,.35)) drop-shadow(0 0 16px rgba(96,165,250,.45));
+  animation:i-drawin .9s cubic-bezier(.4,0,.2,1) .5s both;
+}
+#intro .i-comet{
+  stroke:#1d4ed8;stroke-width:3;stroke-dasharray:.11 .89;stroke-dashoffset:1;opacity:0;
+  filter:drop-shadow(0 0 8px rgba(37,99,235,.55));
+  animation:i-comet 1.3s linear .9s both;
+}
+#intro .i-kicker{font:600 11px var(--sans);letter-spacing:.42em;color:#2563eb;text-transform:uppercase;padding-left:.42em;animation:i-rise .5s ease 1s both}
+#intro .i-title{font:700 clamp(21px,5.4vw,32px)/1.44 var(--serif);color:#0f2a5c;letter-spacing:-.01em;margin-top:12px;animation:i-wipe .7s cubic-bezier(.2,.7,.2,1) 1.15s both}
+#intro .i-sub{margin-top:10px;font:500 13.5px var(--sans);letter-spacing:.14em;color:#475569;animation:i-rise .5s ease 1.4s both}
+#intro .i-sub b{color:#1d4ed8;font-weight:600}
+
+@keyframes i-ring{0%{opacity:0;transform:scale(.5)}16%{opacity:.9}100%{opacity:0;transform:scale(2.75)}}
+@keyframes i-glow{from{opacity:0;transform:scale(.7)}to{opacity:.55;transform:scale(1)}}
+@keyframes i-fadein{from{opacity:0}to{opacity:.26}}
+@keyframes i-drawin{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes i-pop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
+@keyframes i-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes i-wipe{from{opacity:0;clip-path:inset(0 100% 0 0);filter:blur(11px)}to{opacity:1;clip-path:inset(0 -5% 0 -5%);filter:blur(0)}}
+@keyframes i-comet{0%{stroke-dashoffset:1;opacity:0}6%{opacity:1}88%{opacity:1}100%{stroke-dashoffset:-.12;opacity:0}}
+
+/* ป้ายบอกเหตุ: ระบบตั้งค่า "ลดการเคลื่อนไหว" จึงข้าม intro (กดเพื่อเล่นดูได้) */
+#introNote{display:none}
+html.intro-off-note #introNote{
+  display:block;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1500;
+  font:500 12.5px var(--sans);color:#334155;background:rgba(255,255,255,.95);
+  border:1px solid #cbd5e1;border-radius:999px;padding:9px 16px;cursor:pointer;
+  box-shadow:0 8px 22px rgba(15,42,92,.16);max-width:92vw;text-align:center;
+}
+html.intro-off-note #introNote:hover{background:#fff;border-color:#94a3b8}
+
+/* เคารพการตั้งค่า "ลดการเคลื่อนไหว" ของระบบ — ปิดอนิเมชัน แต่คงสถานะสุดท้ายไว้ไม่ให้ชิ้นส่วนหายไป */
+@media (prefers-reduced-motion: reduce){
+  .ecg{stroke-dashoffset:0}
+  body.ready .ecg{animation:none;stroke-dashoffset:0}
+  html:not(.intro-force) #intro .i-rings i, html:not(.intro-force) #intro .i-comet{animation:none;opacity:0}
+  html:not(.intro-force) #intro .i-draw{animation:none;stroke-dashoffset:0}
+  html:not(.intro-force) #intro .i-glow{animation:none}
+  .res{animation:none}
+  .stamp{animation:none;opacity:1;transform:scale(1) rotate(-3deg)}
+  /* ปุ่มตอนโหลด: เปลี่ยนจากคลื่นวิ่ง เป็นการจางสลับเบา ๆ แทน ไม่ให้ปุ่มว่างเปล่า */
+  button.go.is-loading .btn-ecg{animation:soft-blink 1.4s ease-in-out infinite;stroke-dasharray:none;stroke-dashoffset:0}
+  #toast{transition:none}
+  button.go:active:not(:disabled){transform:none}
+  @keyframes soft-blink{0%,100%{opacity:.35}50%{opacity:1}}
+}
+
+@media (min-width:768px){
+  main{max-width:500px}
+  h1{font-size:30px}
+  .lede{font-size:15px}
+}
+</style>
+<script>
+/* ===== ตั้งค่า intro ตรงนี้ =====
+   'session' = เล่นครั้งเดียวต่อการเปิดแท็บ (ค่าเริ่มต้น — กด refresh ก็ไม่เล่นซ้ำ)
+   'once'    = เล่นครั้งเดียวต่อเครื่อง จำใน localStorage ปิดเบราว์เซอร์แล้วเปิดใหม่ก็ไม่เล่นอีก
+   'always'  = เล่นทุกครั้งที่เปิด/รีเฟรช (ใช้ช่วงเดโม/นำเสนอ) */
+var INTRO_MODE = 'session';
+(function(){
+  var cls = document.documentElement.classList;
+  var seen = false;
+  try {
+    seen = (INTRO_MODE === 'once')
+      ? localStorage.getItem('introSeen') === '1'
+      : sessionStorage.getItem('introSeen') === '1';
+  } catch (e) { seen = false; }
+  var play = (INTRO_MODE === 'always') || !seen;
+  var reduced = false;
+  try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  if (reduced) play = false;                          // ยังเคารพการตั้งค่าระบบ
+  if (play) { cls.add('intro-on'); }
+  else if (reduced) { cls.add('intro-off-note'); }    // บอกให้รู้ว่าถูกข้ามเพราะอะไร ไม่เงียบอีก
+  try {
+    sessionStorage.setItem('introSeen', '1');
+    if (INTRO_MODE === 'once') localStorage.setItem('introSeen', '1');
+  } catch (e) {}
+})();
+</script>
+<noscript><style>.ecg{stroke-dashoffset:0}</style></noscript>
+</head>
+<body>
+<div id="intro" aria-hidden="true">
+  <div class="i-scene">
+    <div class="i-glow"></div>
+    <div class="i-rings"><i></i><i></i><i></i></div>
+    <div class="i-content">
+      <img class="i-logo" src="logo-tqm.svg" alt="TQM Alpha">
+      <svg class="i-ecg" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
+        <path class="i-ghost" d="M0 60h206l19-48 22 96 21-72 13 24h319"/>
+        <path class="i-draw"  pathLength="1" d="M0 60h206l19-48 22 96 21-72 13 24h319"/>
+        <path class="i-comet" pathLength="1" d="M0 60h206l19-48 22 96 21-72 13 24h319"/>
+      </svg>
+      <div class="i-kicker">Annual Health Check</div>
+      <div class="i-title">ตรวจสอบสิทธิประโยชน์<br>การตรวจสุขภาพพนักงาน</div>
+      <div class="i-sub">ประจำปี <b>2569</b></div>
+    </div>
+    <div class="i-vignette"></div>
+  </div>
+</div>
+<button id="introNote" type="button">ระบบตั้งค่า "ลดการเคลื่อนไหว" อยู่ จึงข้าม intro — แตะเพื่อเล่นดู</button>
+
+<!-- badge มุมบนขวา → หน้าทุนการศึกษาบุตร (เปิดในแท็บเดิม) -->
+<a class="corner" href="childscholar.html" aria-label="ไปหน้าตรวจสอบสิทธิทุนการศึกษาบุตรพนักงาน ประจำปี 2569">
+  <span class="corner-ic">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2 9l10 5 10-5-10-5Z"/><path d="M6 11.2v4.3c0 1.6 2.7 2.9 6 2.9s6-1.3 6-2.9v-4.3"/></svg>
+  </span>
+  <span class="corner-tx">ทุนการศึกษาบุตร</span>
+  <svg class="corner-arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+</a>
+
+<main>
+  <noscript><p class="nojs">หน้านี้ต้องเปิดใช้ JavaScript เพื่อค้นหาข้อมูล — กรุณาเปิด JavaScript แล้วโหลดหน้าใหม่</p></noscript>
+  <section id="hero">
+    <div>
+      <h1>ตรวจสอบสิทธิประโยชน์<br>การตรวจสุขภาพพนักงาน ประจำปี 2569</h1>
+      <svg class="ecg" viewBox="0 0 320 40" aria-hidden="true">
+        <path pathLength="1" d="M0 24h110l10-16 12 32 11-24 7 8h170"/>
+      </svg>
+      <p class="lede">กรอกรหัสพนักงานเพื่อตรวจสอบสถานพยาบาล และรายละเอียดสิทธิประโยชน์การตรวจสุขภาพประจำปีของคุณ</p>
+      <form id="form" autocomplete="off">
+        <label for="q">รหัสพนักงาน</label>
+        <input id="q" type="text" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="กรอกรหัสพนักงาน">
+        <button class="go" id="go" type="submit">
+          <span class="btn-text">ตรวจสอบสิทธิ</span>
+          <svg class="btn-ecg" viewBox="0 0 140 32" aria-hidden="true"><path d="M0 16h40l6-12 8 24 6-18 5 6h75"/></svg>
+        </button>
+        <button class="again" id="again" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+          ค้นหารหัสอื่น
+        </button>
+      </form>
+    </div>
+  </section>
+  <section id="res" aria-live="polite"></section>
+</main>
+
+<div id="toast" role="alert" aria-live="assertive"></div>
+
+<script>
+const SHEET_ID = '1_dTPtZQOaKfT68XxbUFhjnWfD4QKQngF_S8_TBByNYg';
+/* อ้างชื่อแท็บตรง ๆ แทน gid=0 เพื่อไม่ให้พังเมื่อมีคนแทรก/สลับแท็บ */
+const SHEET_NAME = 'healthcare26';
+/* ลำดับคอลัมน์จริงในชีต ใช้เป็น fallback ถ้า gviz ไม่ส่ง label กลับมา */
+const COLS = ['บริษัท','รหัสพนักงาน','ชื่อ - สกุล','ชื่อ - สกุล (อังกฤษ)','รหัสหน่วยงาน','ชื่อหน่วยงาน','หน่วยงาน','ตำแหน่งงาน','กทม. / ตจว.','โปรแกรมตรวจสุขภาพ','วันที่ตรวจสุขภาพ','เวลาเข้ารับบริการ','สถานที่ตรวจ','สถานพยาบาลที่ให้บริการ','จังหวัด','จุดบริการ','พิกัด GPS','ที่อยู่สถานบริการจุดตรวจ'];
+/* เก็บ cache ผลค้นหาไว้ 2 นาที (ช่วงที่ HR กำลังแก้ข้อมูลในชีต จะได้ไม่เห็นของเก่านานเกินไป) */
+const CACHE_MS = 2 * 60 * 1000;
+const $ = id => document.getElementById(id);
+const noMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Intro ---------- */
+const introEl = $('intro');
+const INTRO_MS = 2800;
+let introTimer = null;
+function endIntro(){
+  if (!introEl || introEl.classList.contains('done')) return;
+  introEl.classList.add('done');                 // จางออก
+  document.body.classList.add('ready');          // แล้วค่อยให้เส้น ECG ของ hero เริ่มวาด
+  setTimeout(() => {
+    introEl.remove();
+    document.documentElement.classList.remove('intro-on', 'intro-force');
+  }, 600);
+}
+function playIntro(){
+  document.body.classList.add('ready');
+  if (!introEl) return;
+  introEl.classList.remove('done');
+  // intro-force = ผู้ใช้กดเล่นเอง จึงยอมให้อนิเมชันทำงาน แม้ระบบตั้ง "ลดการเคลื่อนไหว"
+  document.documentElement.classList.add('intro-on', 'intro-force');
+  document.documentElement.classList.remove('intro-off-note');
+  clearTimeout(introTimer);
+  introTimer = setTimeout(endIntro, INTRO_MS);
+}
+if (introEl && document.documentElement.classList.contains('intro-on')) {
+  introEl.addEventListener('click', endIntro);   // คลิก/แตะเพื่อข้ามได้
+  introTimer = setTimeout(endIntro, INTRO_MS);
+} else {
+  document.body.classList.add('ready');          // ไม่มี intro ก็ให้เส้น ECG ของ hero วาดเลย
+  const note = $('introNote');
+  if (note) note.addEventListener('click', playIntro);
+}
+const btn = $('go'), btnText = btn.querySelector('.btn-text'), inp =$('q'), res = $('res'), toast =$('toast');
+let toastTimer = null, busy = false;
+const mem = new Map();
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const chev = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+
+/* ตัดคำนำหน้าชื่อไทย/ยศทหาร เพื่อให้ชื่อบนตั๋วอ่านง่าย */
+const stripPrefix = n => !n ? '-' : String(n)
+  .replace(/^(ว่าที่\s*ร้อยตรีหญิง|ว่าที่\s*ร้อยตรี|ว่าที่\s*ร\.ต\.|จ\.ส\.อ\.หญิง|จ\.ส\.อ\.|ส\.ต\.ท\.|ส\.ต\.ต\.|ร\.ต\.ท\.|ร\.ต\.|พ\.ต\.ท\.|พ\.ต\.|ด\.ญ\.|ด\.ช\.|นางสาว|นาง|นาย|ดร\.|น\.ส\.|Mr\.|Mrs\.|Ms\.|Miss)\s*/i, '')
+  .replace(/^หญิง\s*/, '')
+  .trim() || '-';
+
+/* ยุบช่องว่างซ้ำ/ตัดหัวท้าย (ชีตมี "วันที่ 3 ตุลาคม  2569" สองเคาะ) */
+const norm = s => s == null ? '' : String(s).replace(/\s+/g, ' ').trim();
+/* คีย์เทียบรหัส: ไม่สนตัวพิมพ์/ช่องว่าง/ขีด */
+const key = s => norm(s).toUpperCase().replace(/[\s\-_]/g, '');
+
+function showToast(message) {
+  clearTimeout(toastTimer);
+  toast.textContent = message;
+  toast.classList.add('show');
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 4000);
+}
+
+function setLoading(loading, text = '') {
+  if (loading) {
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    if (text) btnText.textContent = text;
+  }
+}
+
+/* ---------- gviz: ยิง query ตรงไปที่ชีต (JSONP จึงไม่ติด CORS) ---------- */
+function toRows(raw, expected, keepEmpty) {
+  const fb = expected || COLS;
+  const cols = raw.table.cols.map((c, i) => (c && c.label ? String(c.label).trim() : '') || fb[i] || COLS[i] || ('c' + i));
+  const out = raw.table.rows.map(r => {
+    const o = {};
+    cols.forEach((col, i) => {
+      const cell = r.c && r.c[i];
+      const v = cell ? (cell.f ?? cell.v ?? '') : '';
+      o[col] = v == null ? '' : String(v).trim();
+    });
+    return o;
+  });
+  return keepEmpty ? out : out.filter(r => r['รหัสพนักงาน']);
+}
+
+/* เรียก gviz ผ่าน JSONP (ไม่ติด CORS) แล้วคืน raw response — รองรับทั้ง tq= และ range= */
+function jsonp(query) {
+  return new Promise((resolve, reject) => {
+    const cb = '__gviz_' + Math.random().toString(36).slice(2);
+    const s = document.createElement('script');
+    let done = false;
+    const timer = setTimeout(() => finish(new Error('timeout')), 15000);
+    function finish(err, raw) {
+      if (done) return; done = true;
+      clearTimeout(timer);
+      try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+      if (s.parentNode) s.parentNode.removeChild(s);
+      err ? reject(err) : resolve(raw);
+    }
+    window[cb] = raw => {
+      /* query ผิดจะได้ HTTP 200 พร้อม status:'error' ต้องดักเอง */
+      if (!raw || raw.status === 'error' || !raw.table) return finish(new Error('query'));
+      finish(null, raw);
+    };
+    s.onerror = () => finish(new Error('network'));
+    /* คงรูป tqx แบบไม่ encode ตามที่ Google ใช้จริง (ใช้ได้กับ responseHandler) */
+    s.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`
+      + `?tqx=out:json;responseHandler:${cb}`
+      + `&sheet=${encodeURIComponent(SHEET_NAME)}`
+      + query;
+    document.head.appendChild(s);
+  });
+}
+
+const gviz = (tq, expected, keepEmpty) =>
+  jsonp(`&tq=${encodeURIComponent(tq)}`).then(raw => toRows(raw, expected, keepEmpty));
+
+/* อ่านค่าดิบตามช่วง A1 — จำเป็นเพราะ tq มองเซลล์ข้อความในคอลัมน์ตัวเลขเป็นค่าว่าง */
+const gvizRange = a1 =>
+  jsonp(`&range=${encodeURIComponent(a1)}`).then(raw =>
+    raw.table.rows.map(r => (r.c || []).map(c => (c ? String(c.f ?? c.v ?? '').trim() : ''))));
+
+/* คำกวน ๆ ตอนหาข้อมูลไม่เจอ (สุ่ม และไม่ซ้ำอันเดิมติดกัน) */
+const NOT_FOUND = [
+  q => `ไม่พบรหัส ${q} เลยครับ — พิมพ์ผิดหรือยังไม่ได้แจ้ง HR?`,
+  q => `หาเท่าไรก็ไม่เจอ ${q} นะ... เช็กกับ HR ก่อนดีไหม`,
+  q => `รหัส ${q} ไม่มีในระบบครับ อันนี้คงต้องถามคนกรอกข้อมูลแล้วล่ะ`,
+  q => `ไม่มีรหัส ${q} จริง ๆ ครับ ระบบไม่ผิดนะ คนพิมพ์ต่างหาก`,
+  q => `โทษที หา ${q} ไม่เจอ — ลองหายใจลึก ๆ แล้วพิมพ์ใหม่ดู`
+];
+let lastMiss = -1;
+function missToast(q) {
+  let i = Math.floor(Math.random() * NOT_FOUND.length);
+  if (NOT_FOUND.length > 1 && i === lastMiss) i = (i + 1) % NOT_FOUND.length;
+  lastMiss = i;
+  showToast(NOT_FOUND[i](q));
+}
+
+/* สร้าง query เจาะจงรหัสที่ต้องการ (ดึงเฉพาะแถวของคนนั้น ไม่โหลดทั้งชีต) */
+function searchQuery(q) {
+  const v = norm(q).toUpperCase();
+  const t = [];
+  if (/^\d+$/.test(v)) t.push(`B = ${v}`);                  // รหัสล้วนตัวเลข (พิมพ์ 0 นำหน้าก็ยังเจอ)
+  [...new Set([v, norm(q)])].forEach(x => {
+    if (x) t.push(`B = '${x.replace(/'/g, "''")}'`);        // เผื่อชีตเก็บเป็นข้อความ หรือพิมพ์เล็ก/ใหญ่ต่างกัน
+  });
+  return 'select * where ' + t.join(' or ');
+}
+
+async function findRows(q) {
+  const k = key(q);
+  if (mem.has(k)) return mem.get(k);
+  try {
+    const hit = JSON.parse(sessionStorage.getItem('tqm26:' + k) || 'null');
+    if (hit && hit.t && Date.now() - hit.t < CACHE_MS && Array.isArray(hit.rows)) {
+      mem.set(k, hit.rows); return hit.rows;
+    }
+  } catch (e) {}
+
+  let rows = await gviz(searchQuery(q));
+  /* ไม่เจอด้วย query ปกติ → อาจเป็นรหัสที่เป็น "ข้อความ" ที่ gviz มองไม่เห็น (เช่น L66028) */
+  if (!rows.length) {
+    /* ถ้าขั้นตอนนี้ล้มเหลว ก็ให้ถือว่า "ไม่พบ" ตามปกติ ไม่ใช่ error เครือข่าย */
+    try { const alt = await findByTextCode(q); if (alt) rows = [alt]; } catch (e) {}
+  }
+  /* แถวซ้ำกันเป๊ะ (ข้อมูลซ้ำในชีต) ยุบเหลือแถวเดียว */
+  const seen = new Set();
+  const list = rows.filter(r => {
+    const sig = COLS.map(c => r[c] || '').join('\u0001');
+    if (seen.has(sig)) return false;
+    seen.add(sig); return true;
+  });
+  mem.set(k, list);
+  /* cache เฉพาะผลที่เจอ — ที่ "ไม่พบ" ไม่ลง sessionStorage เผื่อมีคนเพิ่มข้อมูลใหม่ */
+  if (list.length) { try { sessionStorage.setItem('tqm26:' + k, JSON.stringify({ t: Date.now(), rows: list })); } catch (e) {} }
+  return list;
+}
+
+/* ---------- รหัสพนักงานที่เป็น "ข้อความ" (เช่น L66028) ----------
+   gviz ตีชนิดคอลัมน์รหัสเป็นตัวเลข (เพราะคนส่วนใหญ่เป็นตัวเลข) เซลล์ไหนเป็นข้อความ
+   จึงถูกส่งกลับมาเป็น "ค่าว่าง" ทำให้ where/like หาไม่เจอ (count(B) จึงได้ 3,559 ไม่ใช่ 3,576)
+   วิธีแก้: ไล่อ่านทั้งคอลัมน์ผ่าน tq เพื่อหาแถวที่ว่าง แล้วเจาะอ่านค่าจริงของแถวนั้นด้วย range=
+   (range= อ่านค่าดิบได้ ไม่ผ่านการตีชนิด) — ผลลัพธ์แคชไว้ 6 ชม. ใน sessionStorage */
+let textCodes = null;
+const TEXT_TTL = 6 * 60 * 60 * 1000;
+
+async function loadTextCodes() {
+  if (textCodes) return textCodes;
+  try {
+    const hit = JSON.parse(sessionStorage.getItem('tqm26:text') || 'null');
+    if (hit && hit.t && Date.now() - hit.t < TEXT_TTL && Array.isArray(hit.map)) {
+      textCodes = new Map(hit.map); return textCodes;
+    }
+  } catch (e) {}
+
+  const PAGE = 2000, blanks = [];
+  for (let off = 0; off < 60000; off += PAGE) {
+    const rows = await gviz(`select B,C limit ${PAGE} offset ${off}`, ['รหัสพนักงาน', 'ชื่อ - สกุล'], true);
+    rows.forEach((r, i) => {
+      /* แถวที่มีชื่อแต่รหัสว่าง = ผู้ต้องสงสัยว่ารหัสเป็นข้อความ (แถวข้อมูล index 0 = แถวที่ 2 ของชีต) */
+      if (!norm(r['รหัสพนักงาน']) && norm(r['ชื่อ - สกุล'])) blanks.push(off + i + 2);
+    });
+    if (rows.length < PAGE) break;
+  }
+
+  const map = new Map();
+  await Promise.all(blanks.slice(0, 60).map(async row => {
+    try {
+      const vals = await gvizRange('B' + row);
+      const v = norm(vals[0] && vals[0][0]);
+      if (v) map.set(key(v), row);
+    } catch (e) {}
+  }));
+  textCodes = map;
+  try { sessionStorage.setItem('tqm26:text', JSON.stringify({ t: Date.now(), map: [...map] })); } catch (e) {}
+  return map;
+}
+
+async function findByTextCode(q) {
+  const k = key(q);
+  const row = (await loadTextCodes()).get(k);
+  if (!row) return null;
+  const vals = (await gvizRange('A' + row + ':R' + row))[0] || [];
+  const o = {};
+  COLS.forEach((c, i) => { o[c] = norm(vals[i]); });
+  /* กันกรณีชีตถูกแก้ระหว่างสแกนจนเลขแถวเลื่อน — ต้องตรงรหัสจริงเท่านั้นจึงจะคืนข้อมูล */
+  return key(o['รหัสพนักงาน']) === k ? o : null;
+}
+
+function row(label, main, sub) {
+  if (!main || main === '-') return '';
+  return `<div class="r"><dt>${label}</dt><dd>${esc(main)}${sub && sub !== '-' ? `<small>${esc(sub)}</small>` : ''}</dd></div>`;
+}
+
+/* ---------- แผนที่ ---------- */
+const gpsOf = v => {
+  const m = String(v || '').match(/(-?\d{1,3}(?:\.\d+)?)\s*[, ]\s*(-?\d{1,3}(?:\.\d+)?)/);
+  if (!m) return null;
+  const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+  if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat: lat, lng: lng };
+};
+
+const pinSvg = `<svg class="map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+const eyeSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const navSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2Z"/></svg>`;
+
+const navUrl = g => `https://www.google.com/maps/dir/?api=1&destination=${g.lat},${g.lng}&travelmode=driving`;
+const searchUrl = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+const osmEmbed = g => `https://www.openstreetmap.org/export/embed.html?bbox=${g.lng - 0.006},${g.lat - 0.006},${g.lng + 0.006},${g.lat + 0.006}&layer=mapnik&marker=${g.lat},${g.lng}`;
+
+function mapBlock(r) {
+  const g = gpsOf(r['พิกัด GPS']);
+  const addr = norm(r['ที่อยู่สถานบริการจุดตรวจ']);
+  const point = norm(r['จุดบริการ']) || norm(r['สถานที่ตรวจ']);
+  const hosp = norm(r['สถานพยาบาลที่ให้บริการ']);
+  const province = norm(r['จังหวัด']);
+  const title = [point, province].filter(Boolean).join(' · ') || hosp;
+  /* ไม่มีจุดบริการ/จังหวัด/ที่อยู่ = พิกัดที่ได้เป็นตำแหน่งสำนักงาน ไม่ใช่จุดตรวจจริง */
+  const approx = !addr && !province && !norm(r['จุดบริการ']);
+  const btn = (href, cls, label, icon) => `<a class="${cls}" href="${href}" target="_blank" rel="noopener">${icon || ''} ${label}</a>`;
+
+  /* มีพิกัด → แผนที่แบบ lazy (สร้าง iframe ตอนแตะ) + ปุ่มนำทาง */
+  if (g) {
+    const alt = isIOS
+      ? btn(`https://maps.apple.com/?daddr=${g.lat},${g.lng}`, 'btn-alt', 'Apple Maps')
+      : btn(`https://www.openstreetmap.org/?mlat=${g.lat}&mlon=${g.lng}#map=16/${g.lat}/${g.lng}`, 'btn-alt', 'OpenStreetMap');
+    return `<div class="map">
+      <button class="map-cover" type="button" data-lat="${g.lat}" data-lng="${g.lng}" aria-label="แตะเพื่อดูแผนที่">
+        ${pinSvg}
+        <span class="map-pt">${esc(title || 'จุดตรวจสุขภาพ')}${approx ? ' <span class="map-note">ตำแหน่งโดยประมาณ</span>' : ''}</span>
+        ${addr ? `<span class="map-addr">${esc(addr)}</span>` : ''}
+        <span class="map-cta">${eyeSvg} แตะเพื่อดูแผนที่</span>
+      </button>
+      <div class="map-actions">${btn(navUrl(g), 'btn-nav', 'นำทาง', navSvg)}${alt}</div>
+    </div>`;
+  }
+
+  /* ไม่มีพิกัด (ส่วนใหญ่คือสำนักงานใหญ่/โรงพยาบาล) → ค้นหาจากชื่อสถานที่ + ที่อยู่แทน */
+  const q = [hosp, point, province, addr].filter(Boolean).join(' ');
+  if (!q) return '';
+  return `<div class="map">
+    <div class="map-cover static">
+      ${pinSvg}
+      <span class="map-pt">${esc(title || 'สถานที่ตรวจ')}</span>
+      <span class="map-addr">${addr ? esc(addr) : 'ไม่มีพิกัด GPS สำหรับจุดนี้ — ค้นหาจากชื่อสถานที่แทน'}</span>
+    </div>
+    <div class="map-actions">${btn(searchUrl(q), 'btn-nav', 'ค้นหาแผนที่', navSvg)}</div>
+  </div>`;
+}
+
+function ticket(r) {
+  const program = norm(r['โปรแกรมตรวจสุขภาพ']);
+  const place = norm(r['สถานที่ตรวจ']);
+  const hosp = norm(r['สถานพยาบาลที่ให้บริการ']);
+  const date = norm(r['วันที่ตรวจสุขภาพ']);
+  const en = norm(r['ชื่อ - สกุล (อังกฤษ)']);
+  const placeLine = [place, hosp && hosp !== place ? hosp : ''].filter(Boolean).join(' · ') || '-';
+
+  return `<article class="t">
+    <div class="t-head">
+      <div class="k">โปรแกรมตรวจสุขภาพ</div>
+      <div class="hosp">${esc(program || 'ไม่ระบุโปรแกรม')}</div>
+      <div class="k">สถานที่ตรวจ</div>
+      <div class="exam">${esc(placeLine)}</div>
+    </div>
+    <div class="t-body">
+      <div class="who">${esc(stripPrefix(r['ชื่อ - สกุล']))}</div>
+      ${en ? `<div class="en">${esc(en)}</div>` : ''}
+      <div class="eid">รหัสพนักงาน ${esc(norm(r['รหัสพนักงาน']))}</div>
+      <dl>
+        ${row('เวลา', norm(r['เวลาเข้ารับบริการ']))}
+        ${row('จุดบริการ', norm(r['จุดบริการ']), norm(r['จังหวัด']))}
+        ${row('หน่วยงาน', norm(r['ชื่อหน่วยงาน']) || norm(r['หน่วยงาน']), norm(r['รหัสหน่วยงาน']))}
+        ${row('ตำแหน่ง', norm(r['ตำแหน่งงาน']))}
+        ${row('พื้นที่ทำงาน', norm(r['กทม. / ตจว.']))}
+        ${row('บริษัท', norm(r['บริษัท']))}
+      </dl>
+      ${mapBlock(r)}
+      <div class="stat"><span>วันที่ตรวจสุขภาพ</span>
+        <div class="stamp date">${esc(date || 'ไม่ระบุ')}</div>
+      </div>
+    </div>
+  </article>`;
+}
+
+function show(list) {
+  const n = list.length;
+  res.innerHTML = `<div class="res">
+    <div class="track${n > 1 ? ' multi' : ''}" id="trk">${list.map(ticket).join('')}</div>
+    ${n > 1 ? `<div class="pager"><span id="pos">1 / ${n}</span>
+      <div class="nav">
+        <button class="nb" id="prev" aria-label="รายการก่อนหน้า">${chev('m15 18-6-6 6-6')}</button>
+        <button class="nb" id="next" aria-label="รายการถัดไป">${chev('m9 18 6-6-6-6')}</button>
+      </div></div>` : ''}
+  </div>`;
+  if (n > 1) bindPager(n);
+}
+
+function bindPager(n) {
+  const tr = $('trk'), prev = $('prev'), next =$('next');
+  let i = 0;
+  const step = () => tr.children[1].offsetLeft - tr.children[0].offsetLeft;
+  const upd = () => {
+    i = Math.min(n - 1, Math.round(tr.scrollLeft / step()));
+    $('pos').textContent = `${i + 1} / ${n}`;
+    prev.disabled = i === 0; next.disabled = i === n - 1;
+  };
+  const go = k => tr.scrollTo({ left: Math.max(0, Math.min(n - 1, k)) * step(), behavior: noMotion() ? 'auto' : 'smooth' });
+  tr.addEventListener('scroll', () => requestAnimationFrame(upd), { passive: true });
+  prev.onclick = () => go(i - 1);
+  next.onclick = () => go(i + 1);
+  upd();
+}
+
+/* แตะการ์ดแผนที่ → ค่อยสร้าง iframe แผนที่ (lazy ไม่ถ่วงตอนเปิดหน้า) */
+res.addEventListener('click', e => {
+  const cover = e.target.closest ? e.target.closest('.map-cover[data-lat]') : null;
+  if (!cover) return;
+  const f = document.createElement('iframe');
+  f.className = 'map-frame';
+  f.loading = 'lazy';
+  f.title = 'แผนที่จุดตรวจ';
+  f.referrerPolicy = 'no-referrer-when-downgrade';
+  f.src = osmEmbed({ lat: +cover.dataset.lat, lng: +cover.dataset.lng });
+  cover.replaceWith(f);
+});
+
+/* ปุ่มย้อนกลับไปค้นหารหัสอื่น */
+$('again').addEventListener('click', () => {
+  document.body.classList.remove('searched');
+  inp.value = '';
+  res.innerHTML = '';
+  mem.clear();
+  window.scrollTo({ top: 0, behavior: noMotion() ? 'auto' : 'smooth' });
+  try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); }
+});
+
+$('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (busy) return;
+  const q = inp.value.trim();
+  if (!q) {
+    showToast('กรุณากรอกรหัสพนักงานก่อนทำการค้นหา');
+    inp.focus();
+    return;
+  }
+  busy = true; setLoading(true);
+  try {
+    const list = await findRows(q);
+    if (!list.length) { missToast(q); return; }
+    document.body.classList.add('searched');
+    show(list);
+    requestAnimationFrame(() => $('form').scrollIntoView({ behavior: noMotion() ? 'auto' : 'smooth', block: 'start' }));
+  } catch (err) {
+    showToast('เชื่อมต่อข้อมูลไม่สำเร็จ โปรดลองใหม่อีกครั้ง');
+  } finally {
+    busy = false; setLoading(false, 'ตรวจสอบสิทธิ');
+  }
+});
+</script>
+
+<div class="credit">by <b>Antonial</b></div>
+</body>
+</html>
