@@ -482,7 +482,7 @@ html.intro-off-note #introNote:hover{background:#fff;border-color:#94a3b8}
    'session' = เล่นครั้งเดียวต่อการเปิดแท็บ (ค่าเริ่มต้น — กด refresh ก็ไม่เล่นซ้ำ)
    'once'    = เล่นครั้งเดียวต่อเครื่อง จำใน localStorage ปิดเบราว์เซอร์แล้วเปิดใหม่ก็ไม่เล่นอีก
    'always'  = เล่นทุกครั้งที่เปิด/รีเฟรช (ใช้ช่วงเดโม/นำเสนอ) */
-var INTRO_MODE = 'session';
+var INTRO_MODE = 'once';
 (function(){
   var cls = document.documentElement.classList;
   var seen = false;
