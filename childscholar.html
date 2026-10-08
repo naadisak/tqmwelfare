@@ -334,16 +334,8 @@ html.intro-on #intro.done{opacity:0; visibility:hidden; pointer-events:none}
 @keyframes i-rise{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
 @keyframes i-rule{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
-#introNote{display:none}
-html.intro-off-note #introNote{
-  display:block; position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:1500;
-  font:500 12.5px var(--sans); color:#334155; background:rgba(255,255,255,.95);
-  border:1px solid var(--line); border-radius:10px; padding:9px 15px; cursor:pointer;
-  box-shadow:0 8px 22px rgba(16,36,63,.14); max-width:92vw; text-align:center;
-}
-
 @media (prefers-reduced-motion: reduce){
-  html:not(.intro-force) #intro .i-rule{animation:none; transform:scaleX(1)}
+  #intro .i-rule{animation:none; transform:scaleX(1)}
   button.go.is-loading .btn-spin{animation:soft-blink 1.3s ease-in-out infinite; border-top-color:#fff}
   @keyframes soft-blink{0%,100%{opacity:.45}50%{opacity:1}}
   .res{animation:none}
@@ -375,7 +367,6 @@ var INTRO_MODE = 'session';
   try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   if (reduced) play = false;
   if (play) { cls.add('intro-on'); }
-  else if (reduced) { cls.add('intro-off-note'); }
   try {
     sessionStorage.setItem('introSeenScholar', '1');
     if (INTRO_MODE === 'once') localStorage.setItem('introSeenScholar', '1');
@@ -397,7 +388,6 @@ var INTRO_MODE = 'session';
     </div>
   </div>
 </div>
-<button id="introNote" type="button">ระบบตั้งค่า "ลดการเคลื่อนไหว" อยู่ จึงข้าม intro — แตะเพื่อเล่นดู</button>
 
 <!-- badge มุมบนขวา → หน้าตรวจสุขภาพ (เปิดในแท็บเดิม) -->
 <a class="corner" href="index.html" aria-label="ไปหน้าตรวจสอบสิทธิตรวจสุขภาพพนักงาน ประจำปี 2569">
@@ -467,25 +457,14 @@ function endIntro(){
   document.body.classList.add('ready');
   setTimeout(() => {
     introEl.remove();
-    document.documentElement.classList.remove('intro-on', 'intro-force');
+    document.documentElement.classList.remove('intro-on');
   }, 560);
-}
-function playIntro(){
-  document.body.classList.add('ready');
-  if (!introEl) return;
-  introEl.classList.remove('done');
-  document.documentElement.classList.add('intro-on', 'intro-force');
-  document.documentElement.classList.remove('intro-off-note');
-  clearTimeout(introTimer);
-  introTimer = setTimeout(endIntro, INTRO_MS);
 }
 if (introEl && document.documentElement.classList.contains('intro-on')) {
   introEl.addEventListener('click', endIntro);
   introTimer = setTimeout(endIntro, INTRO_MS);
 } else {
   document.body.classList.add('ready');
-  const note = $('introNote');
-  if (note) note.addEventListener('click', playIntro);
 }
 
 const btn = $('go'), btnText = btn.querySelector('.btn-text'), inp = $('q'), res = $('res'), toast = $('toast');

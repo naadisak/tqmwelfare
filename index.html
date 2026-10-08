@@ -445,23 +445,13 @@ html.intro-on #intro.done{opacity:0;visibility:hidden;pointer-events:none}
 @keyframes i-wipe{from{opacity:0;clip-path:inset(0 100% 0 0);filter:blur(11px)}to{opacity:1;clip-path:inset(0 -5% 0 -5%);filter:blur(0)}}
 @keyframes i-comet{0%{stroke-dashoffset:1;opacity:0}6%{opacity:1}88%{opacity:1}100%{stroke-dashoffset:-.12;opacity:0}}
 
-/* ป้ายบอกเหตุ: ระบบตั้งค่า "ลดการเคลื่อนไหว" จึงข้าม intro (กดเพื่อเล่นดูได้) */
-#introNote{display:none}
-html.intro-off-note #introNote{
-  display:block;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1500;
-  font:500 12.5px var(--sans);color:#334155;background:rgba(255,255,255,.95);
-  border:1px solid #cbd5e1;border-radius:999px;padding:9px 16px;cursor:pointer;
-  box-shadow:0 8px 22px rgba(15,42,92,.16);max-width:92vw;text-align:center;
-}
-html.intro-off-note #introNote:hover{background:#fff;border-color:#94a3b8}
-
 /* เคารพการตั้งค่า "ลดการเคลื่อนไหว" ของระบบ — ปิดอนิเมชัน แต่คงสถานะสุดท้ายไว้ไม่ให้ชิ้นส่วนหายไป */
 @media (prefers-reduced-motion: reduce){
   .ecg{stroke-dashoffset:0}
   body.ready .ecg{animation:none;stroke-dashoffset:0}
-  html:not(.intro-force) #intro .i-rings i, html:not(.intro-force) #intro .i-comet{animation:none;opacity:0}
-  html:not(.intro-force) #intro .i-draw{animation:none;stroke-dashoffset:0}
-  html:not(.intro-force) #intro .i-glow{animation:none}
+  #intro .i-rings i, #intro .i-comet{animation:none;opacity:0}
+  #intro .i-draw{animation:none;stroke-dashoffset:0}
+  #intro .i-glow{animation:none}
   .res{animation:none}
   .stamp{animation:none;opacity:1;transform:scale(1) rotate(-3deg)}
   /* ปุ่มตอนโหลด: เปลี่ยนจากคลื่นวิ่ง เป็นการจางสลับเบา ๆ แทน ไม่ให้ปุ่มว่างเปล่า */
@@ -496,7 +486,6 @@ var INTRO_MODE = 'session';
   try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   if (reduced) play = false;                          // ยังเคารพการตั้งค่าระบบ
   if (play) { cls.add('intro-on'); }
-  else if (reduced) { cls.add('intro-off-note'); }    // บอกให้รู้ว่าถูกข้ามเพราะอะไร ไม่เงียบอีก
   try {
     sessionStorage.setItem('introSeen', '1');
     if (INTRO_MODE === 'once') localStorage.setItem('introSeen', '1');
@@ -524,7 +513,6 @@ var INTRO_MODE = 'session';
     <div class="i-vignette"></div>
   </div>
 </div>
-<button id="introNote" type="button">ระบบตั้งค่า "ลดการเคลื่อนไหว" อยู่ จึงข้าม intro — แตะเพื่อเล่นดู</button>
 
 <!-- badge มุมบนขวา → หน้าทุนการศึกษาบุตร (เปิดในแท็บเดิม) -->
 <a class="corner" href="childscholar.html" aria-label="ไปหน้าตรวจสอบสิทธิทุนการศึกษาบุตรพนักงาน ประจำปี 2569">
@@ -584,26 +572,14 @@ function endIntro(){
   document.body.classList.add('ready');          // แล้วค่อยให้เส้น ECG ของ hero เริ่มวาด
   setTimeout(() => {
     introEl.remove();
-    document.documentElement.classList.remove('intro-on', 'intro-force');
+    document.documentElement.classList.remove('intro-on');
   }, 600);
-}
-function playIntro(){
-  document.body.classList.add('ready');
-  if (!introEl) return;
-  introEl.classList.remove('done');
-  // intro-force = ผู้ใช้กดเล่นเอง จึงยอมให้อนิเมชันทำงาน แม้ระบบตั้ง "ลดการเคลื่อนไหว"
-  document.documentElement.classList.add('intro-on', 'intro-force');
-  document.documentElement.classList.remove('intro-off-note');
-  clearTimeout(introTimer);
-  introTimer = setTimeout(endIntro, INTRO_MS);
 }
 if (introEl && document.documentElement.classList.contains('intro-on')) {
   introEl.addEventListener('click', endIntro);   // คลิก/แตะเพื่อข้ามได้
   introTimer = setTimeout(endIntro, INTRO_MS);
 } else {
   document.body.classList.add('ready');          // ไม่มี intro ก็ให้เส้น ECG ของ hero วาดเลย
-  const note = $('introNote');
-  if (note) note.addEventListener('click', playIntro);
 }
 const btn = $('go'), btnText = btn.querySelector('.btn-text'), inp =$('q'), res = $('res'), toast =$('toast');
 let toastTimer = null, busy = false;
