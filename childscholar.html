@@ -213,6 +213,66 @@ button.go.is-loading .btn-spin{display:block; animation:spin .7s linear infinite
 }
 #toast.show{transform:translateX(-50%) translateY(0); opacity:1}
 
+/* ---------- popup กรณี "ไม่พบรายชื่อ" (ใช้แทน toast) ----------
+   โทนเดียวกับตั๋วผลลัพธ์: การ์ดขาว มุมโค้ง หัวการ์ดกรมท่า + เส้นคาดทอง */
+#miss{
+  position:fixed; inset:0; z-index:1200; display:none; padding:20px;
+  align-items:center; justify-content:center; overflow-y:auto;
+  background:rgba(18,40,63,.44);
+  -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+}
+#miss.show{display:flex}
+.miss-card{
+  position:relative; width:100%; max-width:410px; margin:auto;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:0 26px 64px rgba(18,40,63,.30); overflow:hidden;
+  animation:missIn .34s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes missIn{from{opacity:0; transform:translateY(14px) scale(.985)}}
+.miss-top{
+  padding:26px 24px 20px; text-align:center; color:#fff;
+  border-bottom:2px solid var(--accent);
+  background:linear-gradient(135deg,#12283f 0%,#1f4874 100%);
+}
+.miss-ic{
+  width:54px; height:54px; margin:0 auto 13px; border-radius:50%;
+  display:grid; place-items:center; color:#f4e5c2;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.20);
+}
+.miss-ic svg{width:26px; height:26px}
+.miss-kick{font:500 10.5px var(--sans); letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.62)}
+.miss-title{font:600 20px/1.45 var(--serif); color:#fff; margin-top:8px}
+.miss-body{padding:20px 22px 22px}
+.miss-lead{font:500 13.5px/1.75 var(--sans); color:var(--ink)}
+.miss-code{
+  display:inline-flex; align-items:center; gap:7px; margin-top:12px; padding:7px 14px; border-radius:999px;
+  background:var(--sky); border:1px solid var(--sky-line);
+  font:500 12.5px var(--sans); color:#3d5f8a; font-variant-numeric:tabular-nums;
+}
+.miss-code b{font-weight:600; color:#2a4b76; letter-spacing:.02em}
+.miss-p{margin-top:12px; font:400 13px/1.8 var(--sans); color:var(--muted)}
+.miss-heart{
+  margin-top:14px; padding:14px 16px; border-radius:var(--r-sm);
+  background:var(--accent-tint); border:1px solid var(--accent-tint-line);
+  font:500 13px/1.8 var(--sans); color:#7c6428;
+}
+.miss-heart p{margin:0}
+.miss-sign{display:block; margin-top:9px; font:500 11.5px/1.5 var(--sans); color:#a08c56}
+.miss-act{margin-top:16px}
+.miss-ok{
+  width:100%; height:47px; border:0; border-radius:var(--r-sm); cursor:pointer;
+  background:linear-gradient(135deg,#16304f 0%,#23517f 100%); color:#fff;
+  font:600 14.5px var(--sans); box-shadow:0 8px 20px rgba(22,48,79,.22);
+  transition:filter .2s ease, transform .2s ease;
+}
+.miss-ok:hover{filter:brightness(1.08)}
+.miss-ok:active{transform:scale(.99)}
+body.miss-open{overflow:hidden}
+@media (prefers-reduced-motion: reduce){
+  .miss-card{animation:none}
+  .miss-ok:active{transform:none}
+}
+
 /* ---------- ผลลัพธ์ ---------- */
 .res{animation:rise .45s cubic-bezier(.2,.7,.2,1) both; padding-bottom:54px}
 @keyframes rise{from{opacity:0; transform:translateY(14px)}}
@@ -436,6 +496,30 @@ var INTRO_MODE = 'session';
 
 <div id="toast" role="alert" aria-live="assertive"></div>
 
+<!-- popup กรณีไม่พบรายชื่อ — แก้ข้อความทั้งหมดได้ที่นี่ (ไม่ต้องยุ่งกับ JS) -->
+<div id="miss" role="dialog" aria-modal="true" aria-labelledby="missTitle" aria-hidden="true">
+  <div class="miss-card">
+    <div class="miss-top">
+      <div class="miss-ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div class="miss-kick">ทุนการศึกษาบุตรพนักงาน · 2569</div>
+      <div class="miss-title" id="missTitle">ยังไม่พบรายชื่อในรอบนี้</div>
+    </div>
+    <div class="miss-body">
+      <p class="miss-lead">ระบบไม่พบรายชื่อผู้ได้รับทุนการศึกษาบุตรสำหรับรหัสพนักงานนี้ ในรอบปี 2569</p>
+      <span class="miss-code">รหัสที่ค้นหา · <b id="missQ">—</b></span>
+      <div class="miss-heart">
+        <p>ปีนี้น้องยังไม่ได้รับทุนการศึกษานะคะ ขอเป็นกำลังใจให้น้อง และหวังว่าจะได้พบกันใหม่ในโอกาสหน้าค่ะ 💙</p>
+        <span class="miss-sign">— ทีมงานทุนการศึกษาบุตรพนักงาน</span>
+      </div>
+      <p class="miss-p">จำนวนทุนในแต่ละระดับชั้นมีจำกัด การพิจารณาจึงเป็นไปตามหลักเกณฑ์และจำนวนทุนที่บริษัทกำหนดในแต่ละปี การไม่ปรากฏรายชื่อในรอบนี้จึงไม่ได้สะท้อนถึงความสามารถหรือความตั้งใจของน้อง</p>
+      <p class="miss-p">หากท่านยื่นเรื่องขอรับทุนไว้แล้ว หรือสงสัยว่ารหัสพนักงานไม่ถูกต้อง กรุณาติดต่อฝ่ายทรัพยากรบุคคล (HR) เพื่อให้ตรวจสอบข้อมูลอีกครั้ง</p>
+      <div class="miss-act"><button class="miss-ok" id="missOk" type="button">ตรวจสอบรหัสอีกครั้ง</button></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SHEET_ID = '1_dTPtZQOaKfT68XxbUFhjnWfD4QKQngF_S8_TBByNYg';
 /* ชีตทุนการศึกษา (คนละแท็บกับหน้าตรวจสุขภาพ) */
@@ -489,21 +573,30 @@ const money = v => {
 };
 const fmt = n => n.toLocaleString('en-US');
 
-/* คำกวน ๆ ตอนหาข้อมูลไม่เจอ (โทน "ครูเรียกพบผู้ปกครอง") — สุ่มและไม่ซ้ำอันเดิมติดกัน */
-const NOT_FOUND = [
-  q => `ไม่พบรหัส ${q} นะ อยากเรียนซ้ำชั้นเหรอจ้ะ?`,
-  q => `หาไม่เจอแฮะ... หรือลืมไปแล้วว่าตัวเองรหัสอะไร`,
-  q => `รหัส ${q} ไม่มีในระบบ สงสัยต้องไปถามครูประจำชั้น (HR) แล้วล่ะ`,
-  q => `ไม่มีรหัส ${q} จริง ๆ ครับ อย่าเดารหัสมั่วสิ`,
-  q => `ไม่เจอ ${q} นะ รีบไปเช็กก่อนโดนเรียกพบผู้ปกครอง`
-];
-let lastMiss = -1;
-function missToast(q) {
-  let i = Math.floor(Math.random() * NOT_FOUND.length);
-  if (NOT_FOUND.length > 1 && i === lastMiss) i = (i + 1) % NOT_FOUND.length;
-  lastMiss = i;
-  showToast(NOT_FOUND[i](q));
+/* ---------- popup "ไม่พบรายชื่อ" (แทน toast เดิม) ----------
+   ข้อความทั้งหมดอยู่ในบล็อก #miss ใน HTML ให้ HR แก้ถ้อยคำได้เองโดยไม่ต้องแตะ JS
+   หลักการเขียน: ไม่ฟันธงว่า "ไม่ได้รับทุน" เพราะกรณี "ไม่พบ" เกิดจากพิมพ์รหัสผิดได้ด้วย
+   และหลีกเลี่ยงคำที่อ่านแล้วเหมือนตัดสินตัวบุคคลหรือตัดความหวัง */
+const missEl = $('miss'), missOkBtn = $('missOk'), missQEl = $('missQ');
+function openMissModal(q) {
+  missQEl.textContent = norm(q) || '-';
+  missEl.classList.add('show');
+  missEl.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('miss-open');
+  try { missOkBtn.focus({ preventScroll: true }); } catch (e) { missOkBtn.focus(); }
 }
+function closeMissModal() {
+  missEl.classList.remove('show');
+  missEl.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('miss-open');
+  try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); }
+  try { inp.select(); } catch (e) {}   // เลือกข้อความเดิมไว้ให้พิมพ์รหัสใหม่ทับได้เลย
+}
+missOkBtn.addEventListener('click', closeMissModal);
+missEl.addEventListener('click', e => { if (e.target === missEl) closeMissModal(); });   // แตะฉากหลังเพื่อปิด
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && missEl.classList.contains('show')) closeMissModal();
+});
 
 function showToast(message) {
   clearTimeout(toastTimer);
@@ -740,7 +833,7 @@ $('form').addEventListener('submit', async e => {
   busy = true; setLoading(true);
   try {
     const list = await findRows(q);
-    if (!list.length) { missToast(q); return; }
+    if (!list.length) { openMissModal(q); return; }
     document.body.classList.add('searched');
     show(list);
     requestAnimationFrame(() => $('form').scrollIntoView({ behavior: noMotion() ? 'auto' : 'smooth', block: 'start' }));
