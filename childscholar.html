@@ -661,17 +661,21 @@ async function findRows(q) {
    "เซลล์แรกของช่วง range=" ดังนั้นถ้าเริ่มช่วงที่แถวรหัสข้อความแรกแล้วอ่านยาวถึงท้ายชีต
    ทั้งช่วงจะถูกอ่านเป็นข้อความทั้งหมด → ได้รหัสข้อความทุกแถวในคำขอเดียว
    (ของเดิมเจาะอ่านทีละแถวและติดเพดาน 60 แถว) — แคชผลไว้ 6 ชม. */
-let textCodes = null;
+let textCodes = null, lastScan = 0;
 const TEXT_TTL = 6 * 60 * 60 * 1000;
 
-async function loadTextCodes() {
-  if (textCodes) return textCodes;
-  try {
-    const hit = JSON.parse(sessionStorage.getItem('tqm26sch:text') || 'null');
-    if (hit && hit.t && Date.now() - hit.t < TEXT_TTL && Array.isArray(hit.map)) {
-      textCodes = new Map(hit.map); return textCodes;
-    }
-  } catch (e) {}
+/* force = true → สแกนใหม่ทิ้งแคช (ใช้เมื่อค้นรหัสที่มีตัวอักษรแล้วไม่เจอ
+   ซึ่งอาจเป็นรหัสที่เพิ่งเพิ่มเข้าไปหลังแคชถูกสร้าง) */
+async function loadTextCodes(force) {
+  if (!force && textCodes) return textCodes;
+  if (!force) {
+    try {
+      const hit = JSON.parse(sessionStorage.getItem('tqm26sch:text2') || 'null');
+      if (hit && hit.t && Date.now() - hit.t < TEXT_TTL && Array.isArray(hit.map)) {
+        textCodes = new Map(hit.map); return textCodes;
+      }
+    } catch (e) {}
+  }
 
   /* 1) ไล่อ่านตารางทีละ 2,000 แถว หาแถวที่ "รหัสว่างแต่มีชื่อ" = แถวที่รหัสเป็นข้อความ */
   const PAGE = 2000, blanks = [];
@@ -708,13 +712,19 @@ async function loadTextCodes() {
     }
   }
   textCodes = map;
-  try { sessionStorage.setItem('tqm26sch:text', JSON.stringify({ t: Date.now(), map: [...map] })); } catch (e) {}
+  lastScan = Date.now();
+  try { sessionStorage.setItem('tqm26sch:text2', JSON.stringify({ t: Date.now(), map: [...map] })); } catch (e) {}
   return map;
 }
 
 async function findByTextCode(q) {
   const k = key(q);
-  const row = (await loadTextCodes()).get(k);
+  let map = await loadTextCodes();
+  /* รหัสมีตัวอักษรแต่ไม่อยู่ในแผนที่ → อาจเพิ่งเพิ่มเข้าไปหลังแคชถูกสร้าง: สแกนใหม่ (ไม่เกิน 1 ครั้ง/60 วิ) */
+  if (!map.has(k) && /[a-z]/i.test(norm(q)) && Date.now() - lastScan > 60000) {
+    map = await loadTextCodes(true);
+  }
+  const row = map.get(k);
   if (!row) return null;
   const vals = (await gvizRange('A' + row + ':F' + row))[0] || [];
   const o = {};
