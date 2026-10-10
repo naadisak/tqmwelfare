@@ -688,11 +688,14 @@ async function findRows(q) {
   return list;
 }
 
-/* ---------- รหัสพนักงานที่เป็น "ข้อความ" (เช่น L66028) ----------
-   gviz ตีชนิดคอลัมน์รหัสเป็นตัวเลข (เพราะคนส่วนใหญ่เป็นตัวเลข) เซลล์ไหนเป็นข้อความ
-   จึงถูกส่งกลับมาเป็น "ค่าว่าง" ทำให้ where/like หาไม่เจอ (count(B) จึงได้ 3,559 ไม่ใช่ 3,576)
-   วิธีแก้: ไล่อ่านทั้งคอลัมน์ผ่าน tq เพื่อหาแถวที่ว่าง แล้วเจาะอ่านค่าจริงของแถวนั้นด้วย range=
-   (range= อ่านค่าดิบได้ ไม่ผ่านการตีชนิด) — ผลลัพธ์แคชไว้ 6 ชม. ใน sessionStorage */
+/* ---------- รหัสพนักงานที่เป็น "ข้อความ" (เช่น L66028, M600003) ----------
+   gviz ตีชนิดคอลัมน์รหัสเป็นตัวเลข (เพราะคนส่วนใหญ่เป็นตัวเลข) เซลล์ที่เป็นข้อความ
+   จึงกลายเป็น "ค่าว่าง" — มองไม่เห็นทั้ง where / like / count (count(B) < count(A))
+   ทางแก้ที่เร็วและครบถ้วน: gviz ตัดสินชนิดคอลัมน์จาก "เซลล์แรกของช่วง range="
+   ดังนั้นถ้าเริ่มช่วงที่แถวรหัสข้อความแรก แล้วอ่านยาวถึงท้ายชีต ทั้งช่วงจะถูกอ่านเป็น
+   ข้อความทั้งหมด (ไม่ถูกตัดแม้แต่เซลล์เดียว) → ได้รหัสข้อความทุกแถวในคำขอเดียว
+   (ของเดิมเจาะอ่านทีละแถวและติดเพดาน 60 แถว จึงพลาดรหัส M/S ที่เพิ่มเข้ามา)
+   แคชผลไว้ 6 ชม. ใน sessionStorage */
 let textCodes = null;
 const TEXT_TTL = 6 * 60 * 60 * 1000;
 
@@ -705,24 +708,40 @@ async function loadTextCodes() {
     }
   } catch (e) {}
 
+  /* 1) ไล่อ่านตารางทีละ 2,000 แถว หาแถวที่ "รหัสว่างแต่มีชื่อ" = แถวที่รหัสเป็นข้อความ */
   const PAGE = 2000, blanks = [];
+  let total = 0;
   for (let off = 0; off < 60000; off += PAGE) {
     const rows = await gviz(`select B,C limit ${PAGE} offset ${off}`, ['รหัสพนักงาน', 'ชื่อ - สกุล'], true);
     rows.forEach((r, i) => {
-      /* แถวที่มีชื่อแต่รหัสว่าง = ผู้ต้องสงสัยว่ารหัสเป็นข้อความ (แถวข้อมูล index 0 = แถวที่ 2 ของชีต) */
+      /* แถวข้อมูล index 0 = แถวที่ 2 ของชีต */
       if (!norm(r['รหัสพนักงาน']) && norm(r['ชื่อ - สกุล'])) blanks.push(off + i + 2);
     });
+    total = off + rows.length;
     if (rows.length < PAGE) break;
   }
 
   const map = new Map();
-  await Promise.all(blanks.slice(0, 60).map(async row => {
-    try {
-      const vals = await gvizRange('B' + row);
-      const v = norm(vals[0] && vals[0][0]);
-      if (v) map.set(key(v), row);
-    } catch (e) {}
-  }));
+  if (blanks.length) {
+    const start = blanks[0], end = total + 1;   /* total = จำนวนแถวข้อมูล, แถวสุดท้าย = total + 1 */
+    let vals = [];
+    try { vals = (await gvizRange(`B${start}:B${end}`)).map(r => norm(r[0])); } catch (e) {}
+    /* ตรวจว่าเลขแถวตรงกันจริง: ทุกแถวที่ตารางมองไม่เห็น ต้องได้รหัสเป็น "ข้อความ" ไม่ใช่ตัวเลข */
+    const aligned = blanks.every(b => { const v = vals[b - start]; return v && !/^\d+$/.test(v); });
+    if (vals.length === end - start + 1 && aligned) {
+      /* ได้ค่าครบทุกแถว = บังคับชนิดเป็นข้อความสำเร็จ → จับคู่รหัสกับเลขแถวได้ตรง ๆ */
+      vals.forEach((v, i) => { if (v) map.set(key(v), start + i); });
+    } else {
+      /* ไม่ครบ (มีช่องว่างหรือชนิดไม่ถูกบังคับ) → ถอยไปเจาะอ่านรายแถว จำกัด 200 แถว */
+      await Promise.all(blanks.slice(0, 200).map(async row => {
+        try {
+          const got = await gvizRange('B' + row);
+          const v = norm(got[0] && got[0][0]);
+          if (v) map.set(key(v), row);
+        } catch (e) {}
+      }));
+    }
+  }
   textCodes = map;
   try { sessionStorage.setItem('tqm26:text', JSON.stringify({ t: Date.now(), map: [...map] })); } catch (e) {}
   return map;
